@@ -7,10 +7,10 @@ OBJS = ep2.o auxiliares.o
 all: clean $(OUT)
 
 clean:
-	rm -f $(OUT) $(OBJS) ep1sh.o ep1sh
+	rm -f $(OUT) $(OBJS)
 
-ep1: auxiliares.o
-	$(CC) ep2.c auxiliares.o $(LFLAGS) -o ep1
+ep2: auxiliares.o
+	$(CC) ep2.c auxiliares.o $(LFLAGS) -o ep2
 
 auxiliares.o: auxiliares.c
 	$(CC) auxiliares.c -c -o auxiliares.o
