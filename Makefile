@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -g -O0 -pedantic
+CFLAGS = -Wall -g -O3 -pedantic
 LFLAGS = -lpthread
 OUT = ep2
 OBJS = ep2.o auxiliares.o
