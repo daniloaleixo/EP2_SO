@@ -70,27 +70,32 @@ int main(int argc, char *argv[])
 
   arquivo_saida = cria_arquivo(nome_saida);
 
-  int *pont = malloc_safe(sizeof (int));
-  *pont = 5;
+  int *id_ciclista;
+  for(i = 0; i < num_ciclistas; i++) {
+    id_ciclista = malloc_safe(sizeof (int));
+    *id_ciclista = i;
 
-  if(pthread_create(&thread_ciclista[0], NULL, thread_function_ciclista, pont)) {
-    printf("Erro na criacao da thread.\n");
-    abort();
+    if(pthread_create(&thread_ciclista[*id_ciclista], NULL,
+                      thread_function_ciclista, id_ciclista)) {
+      printf("Erro na criacao da thread.\n");
+      abort();
+    }
   }
-  
-  sleep(1);
+
+  /* Aqui, o juiz vai ficar olhando pra galera */
+
   /* Espera todos os ciclistas pararem */
   for(i = 0; i < num_ciclistas; i++)
     pthread_join(thread_ciclista[i], NULL);
 
+  imprime_pista();
 
   return 0;
 }
 
 void *thread_function_ciclista(void *arg) {
-  printf("oi\n");
   int id_ciclista = *((int *) arg);
-  int posicao_anterior, posicao_atual;
+  int posicao_anterior, posicao_atual, i = 0;
 
   /* Verifica qual e' o time do ciclista */
   if(id_ciclista < n)
@@ -99,16 +104,14 @@ void *thread_function_ciclista(void *arg) {
     posicao_anterior = LARGADA2;
 
   posicao_atual = (posicao_anterior + 1) % d;
-  while(posicao_atual < d) {
+  while(i < 2) {
     pista[posicao_anterior].ciclista_nesse_metro[id_ciclista] = 0;
     pista[posicao_atual].ciclista_nesse_metro[id_ciclista] = 1;
 
     posicao_anterior = posicao_atual;
     posicao_atual = (posicao_anterior + 1) % d;
-    imprime_pista();
-    sleep(1);
+    i++;
   }
-  
 
   return NULL;
 }
