@@ -10,3 +10,7 @@
 
 ********************************** */
 
+TODO
+  explicar por que estamos usando vetor de booleano em vez de listas ligadas
+  (ganho de performance, pois não precisa usar semaforo para atualizar quem
+   esta em cada posicao)

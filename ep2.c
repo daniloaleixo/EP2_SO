@@ -31,6 +31,8 @@ typedef struct posicao {
 void *thread_function_ciclista(void *arg);
 void inicializa_variaveis_globais();
 void imprime_pista();
+void imprime_ciclistas_em(Posicao pos);
+char time_ciclista(int id_ciclista);
 
 /* variaveis globais */
 Posicao *pista;
@@ -39,14 +41,16 @@ pthread_t *thread_ciclista;
 
 int LARGADA1, LARGADA2;
 int d, /* representa o tamanho da pista */
-    n; /* representa o numero de ciclistas em cada equipe */
+    n, /* representa o numero de ciclistas em cada equipe */
+    num_ciclistas; /* total de ciclistas */
+
 char v_ou_u; /* forma de execucao */
 FILE *arquivo_saida;
 
 
 int main(int argc, char *argv[])
 {
-  int i;
+  int i, j;
   char *nome_saida = "saida.txt"; 
   
   /* Pegamos as entradas do programa */
@@ -73,11 +77,9 @@ int main(int argc, char *argv[])
     printf("Erro na criacao da thread.\n");
     abort();
   }
-
-  // imprime_pista();
   
   /* Espera todos os ciclistas pararem */
-  for(i = 0; i < n * 2; i++)
+  for(i = 0; i < num_ciclistas; i++)
     pthread_join(thread_ciclista[i], NULL);
 
 
@@ -88,18 +90,23 @@ void *thread_function_ciclista(void *arg) {
   int id_ciclista = *((int *) arg);
   int posicao_anterior, posicao_atual;
 
-  printf("%d\n", id_ciclista);
-
   /* Verifica qual e' o time do ciclista */
   if(id_ciclista < n)
     posicao_anterior = LARGADA1;
   else
     posicao_anterior = LARGADA2;
 
-  printf("ESTOU LARGANDO NO %d\n", posicao_anterior);
+  while(posicao_atual < d) {
+    posicao_atual = (posicao_anterior + 1) % d;
 
-  // pthread_mutex_lock(&semaforo);
-  // pthread_mutex_unlock(&semaforo);
+    pista[posicao_anterior].ciclista_nesse_metro[id_ciclista] = 0;
+    pista[posicao_atual].ciclista_nesse_metro[id_ciclista] = 1;
+
+    posicao_anterior = posicao_atual;
+    imprime_pista();
+    sleep(1);
+  }
+  
 
   return NULL;
 }
@@ -110,18 +117,20 @@ void inicializa_variaveis_globais() {
   LARGADA1 = 0;
   LARGADA2 = d / 2;
 
+  num_ciclistas = 2 * n;
+
   /* aloca os vetores que vamos precisar */
   pista = malloc_safe(d * sizeof(Posicao));
   semaforo_posicao = malloc_safe(d * sizeof(pthread_mutex_t));
+  thread_ciclista = malloc_safe(num_ciclistas * sizeof(pthread_t));
 
-  thread_ciclista = malloc_safe(n * 2 * sizeof(pthread_t));
-
+  printf("%d\n", num_ciclistas);
   /* inicializa pista */
   for(i = 0; i < d; i++) {
-    pista[i].ciclista_nesse_metro = malloc_safe(n * 2 * sizeof(char));
+    pista[i].ciclista_nesse_metro = malloc_safe(num_ciclistas * sizeof(char));
     pthread_mutex_init(&semaforo_posicao[i], NULL);
 
-    for(j = 0; j < n * 2; j++)
+    for(j = 0; j < num_ciclistas; j++)
       pista[i].ciclista_nesse_metro[j] = 0;
   }
 
@@ -130,36 +139,36 @@ void inicializa_variaveis_globais() {
     pista[LARGADA1].ciclista_nesse_metro[j] = TRUE;
     pista[LARGADA2].ciclista_nesse_metro[n + j] = TRUE;
   }
-  
-  /* inicializa ciclistas */
-  // for(i = 0; i < n; i++) {
-  //   ciclistas[i].id_ciclista = i;
-  //   ciclistas[i].equipe = 'A';
-  // }
-
-  // for(i = 0; i < n; i++) {
-  //   ciclistas[n + i].id_ciclista = i;
-  //   ciclistas[n + i].equipe = 'B';
-  // }
 }
 
 void imprime_pista()
 {
-  int i;
+  int i, j, *ids_ciclistas, tamvet;
 
   printf("Imprimindo Pista: \n");
-  printf("LARGADA1");
-  for(i = 0; i < d/2; i++)
-  {
-    if(0) {}/* mudar para se tem ciclista imprime os ciclistas*/
-    else printf("-|");
+  printf("LARGADA1 ");
+  for(i = 0; i < d/2; i++) {
+    imprime_ciclistas_em(pista[i]);
+    printf("| ");
   }
-  printf("LARGADA2");
-  for(; i < d; i++)
-  {
-    if(0) {}/* mudar para se tem ciclista imprime os ciclistas*/
-    else printf("-|");
+
+  printf(" LARGADA2 ");
+  for(; i < d; i++) {
+    imprime_ciclistas_em(pista[i]);
+    printf("| ");
   }
   printf("\n");
 }
 
+void imprime_ciclistas_em(Posicao pos) {
+  int i;
+
+  for(i = 0; i < num_ciclistas; i++)
+    if(pos.ciclista_nesse_metro[i] == 1)
+      printf("%c%d ", time_ciclista(i), i % n);
+}
+
+char time_ciclista(int id_ciclista) {
+  if(id_ciclista < n) return 'A';
+  return 'B';
+}
