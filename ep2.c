@@ -24,30 +24,23 @@
 #define CHANCE_CICLISTA_QUEBRAR 0.1
 #define NUMERO_VOLTAS 16
 
-typedef struct ciclista {
-  char equipe;
-  int id_ciclista;
-} Ciclista;
-
 typedef struct posicao {
-  char *ciclistas_nesse_metro;
+  char *ciclista_nesse_metro;
 } Posicao;
 
-
+void *thread_function_ciclista(void *arg);
 void inicializa_variaveis_globais();
-Ciclista *retira_primeiro_elemento_da_lista(Lista_ciclistas_mesmo_lugar *lista);
-void insere_na_lista(Lista_ciclistas_mesmo_lugar *lista, Ciclista *cic);
 void imprime_pista();
-void imprime_todos_ciclistas();
-
 
 /* variaveis globais */
 Posicao *pista;
+pthread_mutex_t *semaforo_posicao;
+pthread_t *thread_ciclista;
 
+int LARGADA1, LARGADA2;
 int d, /* representa o tamanho da pista */
     n; /* representa o numero de ciclistas em cada equipe */
 char v_ou_u; /* forma de execucao */
-Ciclista *ciclistas;
 FILE *arquivo_saida;
 
 
@@ -73,59 +66,82 @@ int main(int argc, char *argv[])
 
   arquivo_saida = cria_arquivo(nome_saida);
 
-  imprime_todos_ciclistas();
-  imprime_pista();
+  int *pont = malloc_safe(sizeof (int));
+  *pont = 5;
+
+  if(pthread_create(&thread_ciclista[0], NULL, thread_function_ciclista, pont)) {
+    printf("Erro na criacao da thread.\n");
+    abort();
+  }
+
+  // imprime_pista();
+  
+  /* Espera todos os ciclistas pararem */
+  for(i = 0; i < n * 2; i++)
+    pthread_join(thread_ciclista[i], NULL);
 
 
   return 0;
 }
 
+void *thread_function_ciclista(void *arg) {
+  int id_ciclista = *((int *) arg);
+  int posicao_anterior, posicao_atual;
+
+  printf("%d\n", id_ciclista);
+
+  /* Verifica qual e' o time do ciclista */
+  if(id_ciclista < n)
+    posicao_anterior = LARGADA1;
+  else
+    posicao_anterior = LARGADA2;
+
+  printf("ESTOU LARGANDO NO %d\n", posicao_anterior);
+
+  // pthread_mutex_lock(&semaforo);
+  // pthread_mutex_unlock(&semaforo);
+
+  return NULL;
+}
+
 void inicializa_variaveis_globais() {
   int i, j;
+  
+  LARGADA1 = 0;
+  LARGADA2 = d / 2;
+
   /* aloca os vetores que vamos precisar */
   pista = malloc_safe(d * sizeof(Posicao));
-  ciclistas = malloc_safe(2 * n * sizeof(Ciclista));
+  semaforo_posicao = malloc_safe(d * sizeof(pthread_mutex_t));
+
+  thread_ciclista = malloc_safe(n * 2 * sizeof(pthread_t));
 
   /* inicializa pista */
   for(i = 0; i < d; i++) {
-    pista[i].ciclistas_nesse_metro = malloc_safe(n * 2 * sizeof(char));
+    pista[i].ciclista_nesse_metro = malloc_safe(n * 2 * sizeof(char));
+    pthread_mutex_init(&semaforo_posicao[i], NULL);
+
     for(j = 0; j < n * 2; j++)
-      pista[i].ciclistas_nesse_metro[j] = 0;
+      pista[i].ciclista_nesse_metro[j] = 0;
+  }
+
+  /* coloca os ciclistas nas largadas */
+  for(j = 0; j < n; j++) {
+    pista[LARGADA1].ciclista_nesse_metro[j] = TRUE;
+    pista[LARGADA2].ciclista_nesse_metro[n + j] = TRUE;
   }
   
   /* inicializa ciclistas */
-  for(i = 0; i < n; i++) {
-    ciclistas[i].id_ciclista = i;
-    ciclistas[i].equipe = 'A';
-  }
+  // for(i = 0; i < n; i++) {
+  //   ciclistas[i].id_ciclista = i;
+  //   ciclistas[i].equipe = 'A';
+  // }
 
-  for(i = 0; i < n; i++) {
-    ciclistas[n + i].id_ciclista = i;
-    ciclistas[n + i].equipe = 'B';
-  }
+  // for(i = 0; i < n; i++) {
+  //   ciclistas[n + i].id_ciclista = i;
+  //   ciclistas[n + i].equipe = 'B';
+  // }
 }
-
-Ciclista *retira_primeiro_elemento_da_lista(Lista_ciclistas_mesmo_lugar *lista)
-{
-  if(lista == NULL) return NULL;
-  Lista_ciclistas_mesmo_lugar *aux = lista;
-  lista = lista->prox_ciclista;
-  aux->prox_ciclista = NULL;
-  return aux->ciclista;
-}
-
-void insere_na_lista(Lista_ciclistas_mesmo_lugar *lista, Ciclista *cic)
-{
-  Lista_ciclistas_mesmo_lugar *aux;
-
-  if(lista != NULL)
-    for(aux = lista; aux->prox_ciclista != NULL; aux = aux->prox_ciclista);
-
-  lista = malloc_safe(sizeof(Lista_ciclistas_mesmo_lugar));
-  lista->ciclista = cic;
-  lista->prox_ciclista = NULL;
-}
-
 
 void imprime_pista()
 {
@@ -147,9 +163,3 @@ void imprime_pista()
   printf("\n");
 }
 
-void imprime_todos_ciclistas()
-{
-  int i;
-  for(i = 0; i < 2 * n; i++)
-    printf("ciclista: %c%d\n", ciclistas[i].equipe, ciclistas[i].id_ciclista);
-}
