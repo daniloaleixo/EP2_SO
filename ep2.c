@@ -78,6 +78,7 @@ int main(int argc, char *argv[])
     abort();
   }
   
+  sleep(1);
   /* Espera todos os ciclistas pararem */
   for(i = 0; i < num_ciclistas; i++)
     pthread_join(thread_ciclista[i], NULL);
@@ -87,6 +88,7 @@ int main(int argc, char *argv[])
 }
 
 void *thread_function_ciclista(void *arg) {
+  printf("oi\n");
   int id_ciclista = *((int *) arg);
   int posicao_anterior, posicao_atual;
 
@@ -96,13 +98,13 @@ void *thread_function_ciclista(void *arg) {
   else
     posicao_anterior = LARGADA2;
 
+  posicao_atual = (posicao_anterior + 1) % d;
   while(posicao_atual < d) {
-    posicao_atual = (posicao_anterior + 1) % d;
-
     pista[posicao_anterior].ciclista_nesse_metro[id_ciclista] = 0;
     pista[posicao_atual].ciclista_nesse_metro[id_ciclista] = 1;
 
     posicao_anterior = posicao_atual;
+    posicao_atual = (posicao_anterior + 1) % d;
     imprime_pista();
     sleep(1);
   }
@@ -124,7 +126,6 @@ void inicializa_variaveis_globais() {
   semaforo_posicao = malloc_safe(d * sizeof(pthread_mutex_t));
   thread_ciclista = malloc_safe(num_ciclistas * sizeof(pthread_t));
 
-  printf("%d\n", num_ciclistas);
   /* inicializa pista */
   for(i = 0; i < d; i++) {
     pista[i].ciclista_nesse_metro = malloc_safe(num_ciclistas * sizeof(char));
