@@ -36,8 +36,10 @@ char time_ciclista(int id_ciclista);
 
 /* variaveis globais */
 Posicao *pista;
-pthread_mutex_t *semaforo_posicao;
+pthread_mutex_t *semaforo_ciclista;
 pthread_t *thread_ciclista;
+pthread_barrier_t barreira;
+pthread_cond_t liberacao_ciclistas;
 
 int LARGADA1, LARGADA2;
 int d, /* representa o tamanho da pista */
@@ -70,6 +72,7 @@ int main(int argc, char *argv[])
 
   arquivo_saida = cria_arquivo(nome_saida);
 
+  /* Inicializa as threads dos ciclistas */
   int *id_ciclista;
   for(i = 0; i < num_ciclistas; i++) {
     id_ciclista = malloc_safe(sizeof (int));
@@ -82,7 +85,20 @@ int main(int argc, char *argv[])
     }
   }
 
+
   /* Aqui, o juiz vai ficar olhando pra galera */
+  // while(algo) {
+
+  printf("juiz antes da barreira\n");
+  pthread_barrier_wait(&barreira);
+  printf("juiz depois da barreira\n");
+  /* faz o que tem que fazer */
+  pthread_cond_broadcast(&liberacao_ciclistas);
+  pthread_cond_broadcast(&liberacao_ciclistas);
+  printf("juiz depois do broadcast\n");
+  // }
+
+  // corrida_em_andamento = FALSE;
 
   /* Espera todos os ciclistas pararem */
   for(i = 0; i < num_ciclistas; i++)
@@ -95,7 +111,10 @@ int main(int argc, char *argv[])
 
 void *thread_function_ciclista(void *arg) {
   int id_ciclista = *((int *) arg);
-  int posicao_anterior, posicao_atual, i = 0;
+  int posicao_anterior, posicao_atual;
+  int i = 0;
+
+  pthread_mutex_init(&semaforo_ciclista[id_ciclista], NULL);
 
   /* Verifica qual e' o time do ciclista */
   if(id_ciclista < n)
@@ -104,12 +123,26 @@ void *thread_function_ciclista(void *arg) {
     posicao_anterior = LARGADA2;
 
   posicao_atual = (posicao_anterior + 1) % d;
-  while(i < 2) {
+  // while(corrida_em_andamento) {
+  while(i < 1){
+    printf("ciclista %d antes do mutex lock\n", id_ciclista);
+    pthread_mutex_lock(&semaforo_ciclista[id_ciclista]);
+    printf("ciclista %d depois do mutex lock\n", id_ciclista);
+
     pista[posicao_anterior].ciclista_nesse_metro[id_ciclista] = 0;
     pista[posicao_atual].ciclista_nesse_metro[id_ciclista] = 1;
 
     posicao_anterior = posicao_atual;
     posicao_atual = (posicao_anterior + 1) % d;
+
+    printf("ciclista %d antes da barreira\n", id_ciclista);
+    pthread_barrier_wait(&barreira);
+    printf("ciclista %d depois da barreira\n", id_ciclista);
+    pthread_cond_wait(&liberacao_ciclistas, &semaforo_ciclista[id_ciclista]);
+    printf("ciclista %d depois do cond wait barreira\n", id_ciclista);
+    pthread_mutex_unlock(&semaforo_ciclista[id_ciclista]);
+    printf("ciclista %d depois do unlock\n", id_ciclista);
+
     i++;
   }
 
@@ -126,13 +159,12 @@ void inicializa_variaveis_globais() {
 
   /* aloca os vetores que vamos precisar */
   pista = malloc_safe(d * sizeof(Posicao));
-  semaforo_posicao = malloc_safe(d * sizeof(pthread_mutex_t));
+  semaforo_ciclista = malloc_safe(num_ciclistas * sizeof(pthread_mutex_t));
   thread_ciclista = malloc_safe(num_ciclistas * sizeof(pthread_t));
 
   /* inicializa pista */
   for(i = 0; i < d; i++) {
     pista[i].ciclista_nesse_metro = malloc_safe(num_ciclistas * sizeof(char));
-    pthread_mutex_init(&semaforo_posicao[i], NULL);
 
     for(j = 0; j < num_ciclistas; j++)
       pista[i].ciclista_nesse_metro[j] = 0;
@@ -143,6 +175,9 @@ void inicializa_variaveis_globais() {
     pista[LARGADA1].ciclista_nesse_metro[j] = TRUE;
     pista[LARGADA2].ciclista_nesse_metro[n + j] = TRUE;
   }
+
+  pthread_barrier_init(&barreira, NULL, num_ciclistas + 1);
+  pthread_cond_init(&liberacao_ciclistas, NULL);
 }
 
 void imprime_pista()

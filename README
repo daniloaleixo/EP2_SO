@@ -14,3 +14,8 @@ TODO
   explicar por que estamos usando vetor de booleano em vez de listas ligadas
   (ganho de performance, pois não precisa usar semaforo para atualizar quem
    esta em cada posicao)
+
+PONTO EM QUE PARAMOS
+  estamos tentando fazer o broadcast funcionar. No estado atual do código,
+  com dois ciclistas, o juiz dá o broadcast porém só um ciclista consegue passar
+  do cond wait
