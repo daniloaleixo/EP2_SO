@@ -25,7 +25,7 @@
 #define NUMERO_VOLTAS 16
 
 typedef struct posicao {
-  char *ciclista_nesse_metro;
+  int ciclista_nesse_metro[2];
 } Posicao;
 
 void *thread_function_ciclista(void *arg);
@@ -85,6 +85,17 @@ int main(int argc, char *argv[])
 
 
   /* Aqui, o juiz vai ficar olhando pra galera */
+  /*
+
+_--------------------------------------------------------_
+
+
+
+_--------------------------------------------------------_
+
+
+  */
+
   // while(algo) {
 
   pthread_barrier_wait(&barreira1);
@@ -104,6 +115,9 @@ int main(int argc, char *argv[])
   return 0;
 }
 
+
+
+
 void *thread_function_ciclista(void *arg) {
   int id_ciclista = *((int *) arg);
   int posicao_anterior, posicao_atual;
@@ -118,9 +132,6 @@ void *thread_function_ciclista(void *arg) {
   posicao_atual = (posicao_anterior + 1) % d;
   // while(corrida_em_andamento) {
   while(i < 1){
-
-    pista[posicao_anterior].ciclista_nesse_metro[id_ciclista] = 0;
-    pista[posicao_atual].ciclista_nesse_metro[id_ciclista] = 1;
 
     posicao_anterior = posicao_atual;
     posicao_atual = (posicao_anterior + 1) % d;
@@ -151,16 +162,8 @@ void inicializa_variaveis_globais() {
 
   /* inicializa pista */
   for(i = 0; i < d; i++) {
-    pista[i].ciclista_nesse_metro = malloc_safe(num_ciclistas * sizeof(char));
-
-    for(j = 0; j < num_ciclistas; j++)
-      pista[i].ciclista_nesse_metro[j] = 0;
-  }
-
-  /* coloca os ciclistas nas largadas */
-  for(j = 0; j < n; j++) {
-    pista[LARGADA1].ciclista_nesse_metro[j] = TRUE;
-    pista[LARGADA2].ciclista_nesse_metro[n + j] = TRUE;
+    pista[i].ciclista_nesse_metro[0] = -1;
+    pista[i].ciclista_nesse_metro[1] = -1;
   }
 
   pthread_barrier_init(&barreira1, NULL, num_ciclistas + 1);
