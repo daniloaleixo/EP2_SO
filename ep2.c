@@ -41,6 +41,7 @@ pthread_mutex_t *semaforo_pista;
 pthread_t *thread_ciclista;
 pthread_barrier_t barreira1, barreira2;
 float *quanto_cada_ciclista_andou;
+int num_interacoes = 0;
 
 
 int LARGADA1, LARGADA2;
@@ -139,18 +140,29 @@ void *thread_function_ciclista(void *arg) {
 
   posicao_atual = (posicao_anterior + 1) % d;
   // while(corrida_em_andamento) {
-  while(i < 1){
+  while(num_interacoes < 1){
 
-    posicao_anterior = posicao_atual;
-    posicao_atual = (posicao_anterior + 1) % d;
+    if(num_interacoes >= (id_ciclista % n)) {
 
-    printf("%d antes da barreira1\n", id_ciclista);
+      posicao_anterior = posicao_atual;
+      posicao_atual = (posicao_anterior + 1) % d;
+
+      pista[posicao_anterior].ciclista_nesse_metro[0] = -1;
+      pista[posicao_atual].ciclista_nesse_metro[0] = id_ciclista;
+      printf("ID_CICLISTA: %d\n", id_ciclista);
+
+      quanto_cada_ciclista_andou[id_ciclista] += 1;
+    }
+
+
+    //printf("%d antes da barreira1\n", id_ciclista);
     pthread_barrier_wait(&barreira1);
-    printf("%d depois da barreira1\n", id_ciclista);
+    //printf("%d depois da barreira1\n", id_ciclista);
     pthread_barrier_wait(&barreira2);
-    printf("%d depois da barreira2\n", id_ciclista);
+    //printf("%d depois da barreira2\n", id_ciclista);
 
-    i++;
+
+    num_interacoes++;
   }
 
   return NULL;
@@ -240,11 +252,14 @@ void imprime_pista()
 }
 
 void imprime_ciclistas_em(Posicao pos) {
-  int i;
+  int id0 = pos.ciclista_nesse_metro[0];
+  int id1 = pos.ciclista_nesse_metro[1];
 
-  for(i = 0; i < num_ciclistas; i++)
-    if(pos.ciclista_nesse_metro[i] == 1)
-      printf("%c%d ", time_ciclista(i), i % n);
+  if(id0 != -1)
+    printf("%c%d ", time_ciclista(id0), id0 % n);
+  if(id1 != -1)
+    printf("%c%d ", time_ciclista(id1), id1 % n);
+
 }
 
 char time_ciclista(int id_ciclista) {
