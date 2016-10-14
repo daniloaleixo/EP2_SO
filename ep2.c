@@ -44,6 +44,7 @@ pthread_t *thread_ciclista;
 pthread_barrier_t barreira1, barreira2, barreira3;
 float *quanto_cada_ciclista_andou;
 int num_interacoes = 0, corrida_em_andamento = 1;
+int num_voltas_A = 0, num_voltas_B = 0;
 
 
 int LARGADA1, LARGADA2;
@@ -103,7 +104,6 @@ _--------------------------------------------------------_
 
   */
   int terceiro_maior_time_A, terceiro_maior_time_B;
-  int num_voltas_A = 0, num_voltas_B = 0;
   char vencedor;
   while(corrida_em_andamento == TRUE) {
     pthread_barrier_wait(&barreira1);
@@ -120,15 +120,6 @@ _--------------------------------------------------------_
 
     vencedor = corrida_acabou(terceiro_maior_time_A, terceiro_maior_time_B);
     if(vencedor != 0) corrida_em_andamento = FALSE;
-
-    if(terceiro_maior_time_A % d == 0) {
-      num_voltas_A++;
-      printf("Uma volta a mais pro A! %d\n", num_voltas_A);
-    }
-    if(terceiro_maior_time_B % d == 0) {
-      num_voltas_B++;
-      printf("Uma volta a mais pro B! %d\n", num_voltas_B);
-    }
 
     pthread_barrier_wait(&barreira2);
   }
@@ -248,8 +239,9 @@ char corrida_acabou(int terceiro_maior_time_A, int terceiro_maior_time_B) {
 }
 
 int terceiro_maior_do_time(char equipe) {
-  int i, atual, offset,
-      maior = -1, segundo_maior = -1, terceiro_maior = -1;
+  int i, atual, offset, num_voltas,
+      maior = -1, segundo_maior = -1, terceiro_maior = -1,
+      id_maior = -1, id_segundo = -1, id_terceiro = -1;
 
   if(equipe == 'A') offset = 0;
   else offset = n;
@@ -259,15 +251,38 @@ int terceiro_maior_do_time(char equipe) {
 
     if(atual > maior) {
       terceiro_maior = segundo_maior;
+      id_terceiro = id_segundo;
+
       segundo_maior = maior;
+      id_segundo = id_maior;
+
       maior = atual;
+      id_maior = i;
     } else if(atual > segundo_maior) {
       terceiro_maior = segundo_maior;
+      id_terceiro = id_segundo;
+
       segundo_maior = atual;
+      id_segundo = i;
+
     } else if(atual > terceiro_maior) {
       terceiro_maior = atual;
+      id_terceiro = i;
     }
   }
+
+
+  if(terceiro_maior % d == 0) {
+    if(equipe == 'A') num_voltas = num_voltas_A++;
+    else num_voltas = num_voltas_B++;
+
+    float tempo_decorrido = terceiro_maior * 60.0 /1000.0;
+
+    printf("%.2fs | Volta n°%d da equipe %c:  1° %c%d -  2° %c%d - 3° %c%d\n", tempo_decorrido,
+      num_voltas, equipe, equipe, id_maior, equipe, id_segundo, equipe, id_terceiro);
+
+  }
+
 
   return terceiro_maior;
 }
