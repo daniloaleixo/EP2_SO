@@ -22,7 +22,7 @@
 #define FALSE 0
 #define NUMERO_ENTRADAS 2
 #define CHANCE_CICLISTA_QUEBRAR 0.1
-#define NUMERO_VOLTAS 16
+#define NUMERO_VOLTAS 1
 
 typedef struct posicao {
   int ciclista_nesse_metro[2];
@@ -34,6 +34,7 @@ void imprime_pista();
 void imprime_ciclistas_em(Posicao pos);
 char time_ciclista(int id_ciclista);
 float move_ciclista(int id_ciclista, float posicao_atual, float velocidade);
+char corrida_acabou();
 
 /* variaveis globais */
 Posicao *pista;
@@ -112,7 +113,7 @@ _--------------------------------------------------------_
     imprime_pista();
     printf("---------------------------------------\n");
 
-    if(num_interacoes == 10) corrida_em_andamento = FALSE;
+    if(corrida_acabou() != 0) corrida_em_andamento = FALSE;
 
     pthread_barrier_wait(&barreira2);
   }
@@ -222,6 +223,51 @@ float move_ciclista(int id_ciclista, float posicao_atual, float velocidade) {
 }
 
 
+char corrida_acabou() {
+  int i, atual;
+  int maior_time_A = -1, maior_time_B = -1;
+  int segundo_maior_time_A = -1, segundo_maior_time_B = -1;
+  int terceiro_maior_time_A = -1, terceiro_maior_time_B = -1;
+
+  for(i = 0; i < n; i++) {
+    atual = quanto_cada_ciclista_andou[i];
+
+    if(atual > maior_time_A) {
+      terceiro_maior_time_A = segundo_maior_time_A;
+      segundo_maior_time_A = maior_time_A;
+      maior_time_A = atual;
+    } else if(atual > segundo_maior_time_A) {
+      terceiro_maior_time_A = segundo_maior_time_A;
+      segundo_maior_time_A = atual;
+    } else if(atual > terceiro_maior_time_A) {
+      terceiro_maior_time_A = atual;
+    }
+  }
+
+  for(;i< num_ciclistas; i++){
+    atual = quanto_cada_ciclista_andou[i];
+
+    if(atual > maior_time_B) {
+      terceiro_maior_time_B = segundo_maior_time_B;
+      segundo_maior_time_B = maior_time_B;
+      maior_time_B = atual;
+    } else if(atual > segundo_maior_time_B) {
+      terceiro_maior_time_B = segundo_maior_time_B;
+      segundo_maior_time_B = atual;
+    } else if(atual > terceiro_maior_time_B) {
+      terceiro_maior_time_B = atual;
+    }
+  }
+
+
+  printf("time A: %d, time B: %d\n", terceiro_maior_time_A, terceiro_maior_time_B);
+
+  if(terceiro_maior_time_A == d * NUMERO_VOLTAS && terceiro_maior_time_B == d * NUMERO_VOLTAS) return 'E';
+  if(terceiro_maior_time_A == d * NUMERO_VOLTAS) return 'A';
+  if(terceiro_maior_time_B == d * NUMERO_VOLTAS) return 'B';
+
+  return 0;
+}
 
 
 void inicializa_variaveis_globais() {
