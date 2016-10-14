@@ -34,7 +34,8 @@ void imprime_pista();
 void imprime_ciclistas_em(Posicao pos);
 char time_ciclista(int id_ciclista);
 float move_ciclista(int id_ciclista, float posicao_atual, float velocidade);
-char corrida_acabou();
+char corrida_acabou(int terceiro_maior_time_A, int terceiro_maior_time_B);
+int terceiro_maior_do_time(char equipe);
 
 /* variaveis globais */
 Posicao *pista;
@@ -101,19 +102,33 @@ _--------------------------------------------------------_
 
 
   */
-
+  int terceiro_maior_time_A, terceiro_maior_time_B;
+  int num_voltas_A = 0, num_voltas_B = 0;
+  char vencedor;
   while(corrida_em_andamento == TRUE) {
-
     pthread_barrier_wait(&barreira1);
     usleep(100000);
-    printf("SOU EU, O JUIZ. :D\n");
 
     num_interacoes++;
 
     imprime_pista();
     printf("---------------------------------------\n");
 
-    if(corrida_acabou() != 0) corrida_em_andamento = FALSE;
+    
+    terceiro_maior_time_A = terceiro_maior_do_time('A');
+    terceiro_maior_time_B = terceiro_maior_do_time('B');
+
+    vencedor = corrida_acabou(terceiro_maior_time_A, terceiro_maior_time_B);
+    if(vencedor != 0) corrida_em_andamento = FALSE;
+
+    if(terceiro_maior_time_A % d == 0) {
+      num_voltas_A++;
+      printf("Uma volta a mais pro A! %d\n", num_voltas_A);
+    }
+    if(terceiro_maior_time_B % d == 0) {
+      num_voltas_B++;
+      printf("Uma volta a mais pro B! %d\n", num_voltas_B);
+    }
 
     pthread_barrier_wait(&barreira2);
   }
@@ -223,50 +238,38 @@ float move_ciclista(int id_ciclista, float posicao_atual, float velocidade) {
 }
 
 
-char corrida_acabou() {
-  int i, atual;
-  int maior_time_A = -1, maior_time_B = -1;
-  int segundo_maior_time_A = -1, segundo_maior_time_B = -1;
-  int terceiro_maior_time_A = -1, terceiro_maior_time_B = -1;
-
-  for(i = 0; i < n; i++) {
-    atual = quanto_cada_ciclista_andou[i];
-
-    if(atual > maior_time_A) {
-      terceiro_maior_time_A = segundo_maior_time_A;
-      segundo_maior_time_A = maior_time_A;
-      maior_time_A = atual;
-    } else if(atual > segundo_maior_time_A) {
-      terceiro_maior_time_A = segundo_maior_time_A;
-      segundo_maior_time_A = atual;
-    } else if(atual > terceiro_maior_time_A) {
-      terceiro_maior_time_A = atual;
-    }
-  }
-
-  for(;i< num_ciclistas; i++){
-    atual = quanto_cada_ciclista_andou[i];
-
-    if(atual > maior_time_B) {
-      terceiro_maior_time_B = segundo_maior_time_B;
-      segundo_maior_time_B = maior_time_B;
-      maior_time_B = atual;
-    } else if(atual > segundo_maior_time_B) {
-      terceiro_maior_time_B = segundo_maior_time_B;
-      segundo_maior_time_B = atual;
-    } else if(atual > terceiro_maior_time_B) {
-      terceiro_maior_time_B = atual;
-    }
-  }
-
-
-  printf("time A: %d, time B: %d\n", terceiro_maior_time_A, terceiro_maior_time_B);
-
-  if(terceiro_maior_time_A == d * NUMERO_VOLTAS && terceiro_maior_time_B == d * NUMERO_VOLTAS) return 'E';
+char corrida_acabou(int terceiro_maior_time_A, int terceiro_maior_time_B) {
+  if(terceiro_maior_time_A == d * NUMERO_VOLTAS &&
+     terceiro_maior_time_B == d * NUMERO_VOLTAS) return 'E';
   if(terceiro_maior_time_A == d * NUMERO_VOLTAS) return 'A';
   if(terceiro_maior_time_B == d * NUMERO_VOLTAS) return 'B';
 
   return 0;
+}
+
+int terceiro_maior_do_time(char equipe) {
+  int i, atual, offset,
+      maior = -1, segundo_maior = -1, terceiro_maior = -1;
+
+  if(equipe == 'A') offset = 0;
+  else offset = n;
+
+  for(i = 0; i < n; i++) {
+    atual = quanto_cada_ciclista_andou[i + offset];
+
+    if(atual > maior) {
+      terceiro_maior = segundo_maior;
+      segundo_maior = maior;
+      maior = atual;
+    } else if(atual > segundo_maior) {
+      terceiro_maior = segundo_maior;
+      segundo_maior = atual;
+    } else if(atual > terceiro_maior) {
+      terceiro_maior = atual;
+    }
+  }
+
+  return terceiro_maior;
 }
 
 
