@@ -39,9 +39,9 @@ float move_ciclista(int id_ciclista, float posicao_atual, float velocidade);
 Posicao *pista;
 pthread_mutex_t *semaforo_pista;
 pthread_t *thread_ciclista;
-pthread_barrier_t barreira1, barreira2;
+pthread_barrier_t barreira1, barreira2, barreira3;
 float *quanto_cada_ciclista_andou;
-int num_interacoes = 0;
+int num_interacoes = 0, corrida_em_andamento = 1;
 
 
 int LARGADA1, LARGADA2;
@@ -101,21 +101,26 @@ _--------------------------------------------------------_
 
   */
 
-  // while(algo) {
+  while(corrida_em_andamento == TRUE) {
 
-  pthread_barrier_wait(&barreira1);
-  sleep(2);
-  printf("SOU EU, O JUIZ. :D\n");
-  pthread_barrier_wait(&barreira2);
-  // }
+    pthread_barrier_wait(&barreira1);
+    usleep(100000);
+    printf("SOU EU, O JUIZ. :D\n");
 
-  // corrida_em_andamento = FALSE;
+    num_interacoes++;
+
+    imprime_pista();
+    printf("---------------------------------------\n");
+
+    if(num_interacoes == 10) corrida_em_andamento = FALSE;
+
+    pthread_barrier_wait(&barreira2);
+  }
 
   /* Espera todos os ciclistas pararem */
   for(i = 0; i < num_ciclistas; i++)
     pthread_join(thread_ciclista[i], NULL);
 
-  imprime_pista();
 
   return 0;
 }
@@ -139,30 +144,43 @@ void *thread_function_ciclista(void *arg) {
     posicao_anterior = LARGADA2;
 
   posicao_atual = (posicao_anterior + 1) % d;
-  // while(corrida_em_andamento) {
-  while(num_interacoes < 1){
+  while(corrida_em_andamento == TRUE) {
 
     if(num_interacoes >= (id_ciclista % n)) {
 
-      posicao_anterior = posicao_atual;
-      posicao_atual = (posicao_anterior + 1) % d;
 
+      pthread_mutex_lock(&semaforo_pista[posicao_anterior]);
       pista[posicao_anterior].ciclista_nesse_metro[0] = -1;
+      pthread_mutex_unlock(&semaforo_pista[posicao_anterior]);
+
+      pthread_barrier_wait(&barreira3);
+
+      pthread_mutex_lock(&semaforo_pista[posicao_atual]);
       pista[posicao_atual].ciclista_nesse_metro[0] = id_ciclista;
-      printf("ID_CICLISTA: %d\n", id_ciclista);
+      pthread_mutex_unlock(&semaforo_pista[posicao_atual]);
+
+      /*printf("id: %d, num_interaca: %d, posicao_atual: %d, posicao_anterior: %d\n", 
+        id_ciclista, num_interacoes, posicao_atual, posicao_anterior);*/
+
+      //printf("ID_CICLISTA: %d\n", id_ciclista);
+
 
       quanto_cada_ciclista_andou[id_ciclista] += 1;
-    }
+
+
+      posicao_anterior = posicao_atual;
+      posicao_atual = (posicao_anterior + 1) % d;
+    } else 
+      pthread_barrier_wait(&barreira3);
 
 
     //printf("%d antes da barreira1\n", id_ciclista);
     pthread_barrier_wait(&barreira1);
+    if(corrida_em_andamento == FALSE) return NULL;
     //printf("%d depois da barreira1\n", id_ciclista);
     pthread_barrier_wait(&barreira2);
     //printf("%d depois da barreira2\n", id_ciclista);
 
-
-    num_interacoes++;
   }
 
   return NULL;
@@ -230,6 +248,7 @@ void inicializa_variaveis_globais() {
 
   pthread_barrier_init(&barreira1, NULL, num_ciclistas + 1);
   pthread_barrier_init(&barreira2, NULL, num_ciclistas + 1);
+  pthread_barrier_init(&barreira3, NULL, num_ciclistas);
 }
 
 void imprime_pista()
