@@ -22,7 +22,7 @@
 #define FALSE 0
 #define NUMERO_ENTRADAS 2
 #define CHANCE_CICLISTA_QUEBRAR 0.1
-#define NUMERO_VOLTAS 3
+#define NUMERO_VOLTAS 16
 
 typedef struct posicao {
   int ciclista_nesse_metro[2];
@@ -109,7 +109,6 @@ _--------------------------------------------------------_
   char vencedor;
   while(corrida_em_andamento == TRUE) {
     pthread_barrier_wait(&barreira1);
-    usleep(100000);
 
     num_interacoes++;
     
