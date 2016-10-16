@@ -23,8 +23,8 @@ PONTO EM QUE PARAMOS
 TAMANHOS
   - PISTA:
     - Pequeno : 250
-    - Médio : 2500
-    - Grande: 25000
+    - Médio : 1000
+    - Grande: 5000
 
   - CICLISTAS
     - Pequeno: 5
