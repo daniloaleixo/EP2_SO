@@ -22,7 +22,7 @@
 #define FALSE 0
 #define NUMERO_ENTRADAS 2
 #define CHANCE_CICLISTA_QUEBRAR 0.1
-#define NUMERO_VOLTAS 1
+#define NUMERO_VOLTAS 3
 
 typedef struct posicao {
   int ciclista_nesse_metro[2];
@@ -44,7 +44,7 @@ pthread_t *thread_ciclista;
 pthread_barrier_t barreira1, barreira2, barreira3;
 float *quanto_cada_ciclista_andou;
 int num_interacoes = 0, corrida_em_andamento = 1;
-int num_voltas_A = 0, num_voltas_B = 0;
+int num_voltas_A = 1, num_voltas_B = 1;
 
 
 int LARGADA1, LARGADA2;
@@ -77,6 +77,8 @@ int main(int argc, char *argv[])
   inicializa_variaveis_globais();
 
   arquivo_saida = cria_arquivo(nome_saida);
+
+  printf("Começou a corrida\n");
 
   /* Inicializa as threads dos ciclistas */
   int *id_ciclista;
@@ -111,8 +113,8 @@ _--------------------------------------------------------_
 
     num_interacoes++;
 
-    imprime_pista();
-    printf("---------------------------------------\n");
+    //imprime_pista();
+    //printf("---------------------------------------\n");
 
     
     terceiro_maior_time_A = terceiro_maior_do_time('A');
@@ -271,10 +273,13 @@ int terceiro_maior_do_time(char equipe) {
     }
   }
 
-
-  if(terceiro_maior % d == 0) {
-    if(equipe == 'A') num_voltas = num_voltas_A++;
-    else num_voltas = num_voltas_B++;
+  if(terceiro_maior % d == 0 && terceiro_maior != 0) {
+    if(equipe == 'A') {
+      num_voltas = num_voltas_A++;
+    }
+    else {
+      num_voltas = num_voltas_B++;
+    }
 
     float tempo_decorrido = terceiro_maior * 60.0 /1000.0;
 
