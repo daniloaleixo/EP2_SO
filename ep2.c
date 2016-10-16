@@ -28,6 +28,11 @@ typedef struct posicao {
   int ciclista_nesse_metro[2];
 } Posicao;
 
+typedef struct chegada {
+  int id_ciclista;
+  float tempo_chegada;
+} Chegada;
+
 void *thread_function_ciclista(void *arg);
 void inicializa_variaveis_globais();
 void imprime_pista();
@@ -121,9 +126,9 @@ _--------------------------------------------------------_
     pthread_join(thread_ciclista[i], NULL);
 
   if(vencedor == 'E')
-    fprintf(arquivo_saida, "Houve empate!\n");
+    fprintf(arquivo_saida, "\nHouve empate!\n");
   else
-    fprintf(arquivo_saida, "A equipe %c venceu!\n", vencedor);
+    fprintf(arquivo_saida, "\nA equipe %c venceu!\n", vencedor);
 
   // imprimir ordem de chegada dos ciclistas e tempo de chegada de cada um deles.
 
@@ -167,6 +172,8 @@ void *thread_function_ciclista(void *arg) {
 
     pthread_barrier_wait(&barreira1);
     pthread_barrier_wait(&barreira_coordenador);
+
+    if(posicao_atual)
 
     if(corrida_em_andamento == FALSE) break;
   }
