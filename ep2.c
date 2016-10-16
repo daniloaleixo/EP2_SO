@@ -78,8 +78,6 @@ int main(int argc, char *argv[])
 
   arquivo_saida = cria_arquivo(nome_saida);
 
-  printf("Começou a corrida\n");
-
   /* Inicializa as threads dos ciclistas */
   int *id_ciclista;
   for(i = 0; i < num_ciclistas; i++) {
@@ -93,17 +91,12 @@ int main(int argc, char *argv[])
     }
   }
 
-
-  /* Aqui, o juiz vai ficar olhando pra galera */
-  /*
-
+/*
 _--------------------------------------------------------_
 
-          JUIZ
+          COORDENADOR
 
 _--------------------------------------------------------_
-
-
   */
   int terceiro_maior_time_A, terceiro_maior_time_B;
   char vencedor;
@@ -113,7 +106,6 @@ _--------------------------------------------------------_
     num_interacoes++;
     
     // imprime_pista();
-    // printf("---------------------------------------\n");
 
     terceiro_maior_time_A = terceiro_maior_do_time('A');
     terceiro_maior_time_B = terceiro_maior_do_time('B');
@@ -128,21 +120,25 @@ _--------------------------------------------------------_
   for(i = 0; i < num_ciclistas; i++)
     pthread_join(thread_ciclista[i], NULL);
 
+  if(vencedor == 'E')
+    fprintf(arquivo_saida, "Houve empate!\n");
+  else
+    fprintf(arquivo_saida, "A equipe %c venceu!\n", vencedor);
 
+  // imprimir ordem de chegada dos ciclistas e tempo de chegada de cada um deles.
+
+  fclose(arquivo_saida);
   return 0;
 }
 
-
 /*
-
 
 Thread Function
 
 */
 void *thread_function_ciclista(void *arg) {
-  int id_ciclista = *((int *) arg);
-  int posicao_anterior, posicao_atual;
-  int i = 0;
+  int posicao_anterior, posicao_atual,
+      id_ciclista = *((int *) arg), i = 0;
 
   /* Verifica qual e' o time do ciclista */
   if(id_ciclista < n)
@@ -152,10 +148,7 @@ void *thread_function_ciclista(void *arg) {
 
   posicao_atual = (posicao_anterior + 1) % d;
   while(corrida_em_andamento == TRUE) {
-
     if(num_interacoes >= (id_ciclista % n)) {
-
-
       pthread_mutex_lock(&semaforo_pista[posicao_anterior]);
       pista[posicao_anterior].ciclista_nesse_metro[0] = -1;
       pthread_mutex_unlock(&semaforo_pista[posicao_anterior]);
@@ -166,15 +159,7 @@ void *thread_function_ciclista(void *arg) {
       pista[posicao_atual].ciclista_nesse_metro[0] = id_ciclista;
       pthread_mutex_unlock(&semaforo_pista[posicao_atual]);
 
-      /*printf("id: %d, num_interaca: %d, posicao_atual: %d, posicao_anterior: %d\n", 
-        id_ciclista, num_interacoes, posicao_atual, posicao_anterior);*/
-
-      //printf("ID_CICLISTA: %d\n", id_ciclista);
-
-
       quanto_cada_ciclista_andou[id_ciclista] += 1;
-
-
       posicao_anterior = posicao_atual;
       posicao_atual = (posicao_anterior + 1) % d;
     } else 
@@ -182,7 +167,8 @@ void *thread_function_ciclista(void *arg) {
 
     pthread_barrier_wait(&barreira1);
     pthread_barrier_wait(&barreira_coordenador);
-    if(corrida_em_andamento == FALSE) return NULL;
+
+    if(corrida_em_andamento == FALSE) break;
   }
 
   return NULL;
@@ -271,12 +257,12 @@ int terceiro_maior_do_time(char equipe) {
 
     float tempo_decorrido = terceiro_maior * 60.0 / 1000.0;
 
-    printf("%.2fs | Volta n°%d da equipe %c:  1° %c%d -  2° %c%d - 3° %c%d\n",
-           tempo_decorrido, num_voltas, equipe, equipe, id_maior, equipe,
-           id_segundo, equipe, id_terceiro);
+    fprintf(arquivo_saida,
+            "%7.2fs | Volta n° %2d da equipe %c: 1° %c%d | 2° %c%d | 3° %c%d\n",
+            tempo_decorrido, num_voltas, equipe, equipe, id_maior, equipe,
+            id_segundo, equipe, id_terceiro);
 
   }
-
 
   return terceiro_maior;
 }
