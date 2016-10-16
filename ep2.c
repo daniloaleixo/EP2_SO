@@ -278,8 +278,9 @@ int terceiro_maior_do_time(char equipe) {
 
     float tempo_decorrido = terceiro_maior * 60.0 /1000.0;
 
-    printf("%.2fs | Volta n°%d da equipe %c:  1° %c%d -  2° %c%d - 3° %c%d\n", tempo_decorrido,
-      num_voltas, equipe, equipe, id_maior, equipe, id_segundo, equipe, id_terceiro);
+    printf("%.2fs | Volta n°%d da equipe %c:  1° %c%d -  2° %c%d - 3° %c%d\n",
+           tempo_decorrido, num_voltas, equipe, equipe, id_maior, equipe,
+           id_segundo, equipe, id_terceiro);
 
   }
 
@@ -317,7 +318,7 @@ void inicializa_variaveis_globais() {
 
 void imprime_pista()
 {
-  int i, j, *ids_ciclistas, tamvet;
+  int i, j, *ids_ciclistas;
 
   printf("Imprimindo Pista: \n");
   printf("LARGADA1 ");
