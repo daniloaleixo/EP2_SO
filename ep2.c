@@ -180,14 +180,9 @@ void *thread_function_ciclista(void *arg) {
     } else 
       pthread_barrier_wait(&barreira2);
 
-
-    //printf("%d antes da barreira1\n", id_ciclista);
     pthread_barrier_wait(&barreira1);
-    if(corrida_em_andamento == FALSE) return NULL;
-    //printf("%d depois da barreira1\n", id_ciclista);
     pthread_barrier_wait(&barreira_coordenador);
-    //printf("%d depois da barreira_coordenador\n", id_ciclista);
-
+    if(corrida_em_andamento == FALSE) return NULL;
   }
 
   return NULL;
