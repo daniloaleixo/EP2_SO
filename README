@@ -19,3 +19,14 @@ PONTO EM QUE PARAMOS
   estamos tentando fazer o broadcast funcionar. No estado atual do código,
   com dois ciclistas, o juiz dá o broadcast porém só um ciclista consegue passar
   do cond wait
+
+TAMANHOS
+  - PISTA:
+    - Pequeno : 250
+    - Médio : 2500
+    - Grande: 25000
+
+  - CICLISTAS
+    - Pequeno: 5
+    - Medio: 30 
+    - Grande: 60

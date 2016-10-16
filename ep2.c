@@ -78,7 +78,7 @@ int main(int argc, char *argv[])
 
   arquivo_saida = cria_arquivo(nome_saida);
 
-  printf("Começou a corrida\n");
+  //printf("Começou a corrida\n");
 
   /* Inicializa as threads dos ciclistas */
   int *id_ciclista;
@@ -271,9 +271,9 @@ int terceiro_maior_do_time(char equipe) {
 
     float tempo_decorrido = terceiro_maior * 60.0 / 1000.0;
 
-    printf("%.2fs | Volta n°%d da equipe %c:  1° %c%d -  2° %c%d - 3° %c%d\n",
+    /*printf("%.2fs | Volta n°%d da equipe %c:  1° %c%d -  2° %c%d - 3° %c%d\n",
            tempo_decorrido, num_voltas, equipe, equipe, id_maior, equipe,
-           id_segundo, equipe, id_terceiro);
+           id_segundo, equipe, id_terceiro);*/
 
   }
 
