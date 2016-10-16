@@ -44,7 +44,7 @@ pthread_t *thread_ciclista;
 pthread_barrier_t barreira1, barreira_coordenador, barreira2;
 float *quanto_cada_ciclista_andou;
 int num_interacoes = 0, corrida_em_andamento = 1;
-int num_voltas_A = 0, num_voltas_B = 0;
+int num_voltas_A = 1, num_voltas_B = 1;
 
 
 int LARGADA1, LARGADA2;
@@ -77,6 +77,8 @@ int main(int argc, char *argv[])
   inicializa_variaveis_globais();
 
   arquivo_saida = cria_arquivo(nome_saida);
+
+  printf("Começou a corrida\n");
 
   /* Inicializa as threads dos ciclistas */
   int *id_ciclista;
@@ -113,7 +115,6 @@ _--------------------------------------------------------_
     
     // imprime_pista();
     // printf("---------------------------------------\n");
-
 
     terceiro_maior_time_A = terceiro_maior_do_time('A');
     terceiro_maior_time_B = terceiro_maior_do_time('B');
@@ -266,10 +267,13 @@ int terceiro_maior_do_time(char equipe) {
     }
   }
 
-
-  if(terceiro_maior % d == 0) {
-    if(equipe == 'A') num_voltas = num_voltas_A++;
-    else num_voltas = num_voltas_B++;
+  if(terceiro_maior % d == 0 && terceiro_maior != 0) {
+    if(equipe == 'A') {
+      num_voltas = num_voltas_A++;
+    }
+    else {
+      num_voltas = num_voltas_B++;
+    }
 
     float tempo_decorrido = terceiro_maior * 60.0 / 1000.0;
 
