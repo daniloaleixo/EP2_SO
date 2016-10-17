@@ -2,46 +2,46 @@
 
 for i in $(seq 1 30)
 do
-  /usr/bin/time -v ./ep2 250 5 &> saidas/saida_5_250_$i
+  /usr/bin/time -v ./ep2 250 5 &> saida_5_250_$i
 done
 
 for i in $(seq 1 30)
 do
-  /usr/bin/time -v ./ep2 1000 5 &> saidas/saida_5_1000_$i
+  /usr/bin/time -v ./ep2 2500 5 &> saida_5_2500_$i
 done
 
 for i in $(seq 1 30)
 do
-  /usr/bin/time -v ./ep2 5000 5 &> saidas/saida_5_5000_$i
+  /usr/bin/time -v ./ep2 25000 5 &> saida_5_25000_$i
 done
 
 for i in $(seq 1 30)
 do
-  /usr/bin/time -v ./ep2 250 30 &> saidas/saida_30_250_$i
+  /usr/bin/time -v ./ep2 250 30 &> saida_0_250_$i
 done
 
 for i in $(seq 1 30)
 do
-  /usr/bin/time -v ./ep2 1000 30 &> saidas/saida_30_1000_$i
+  /usr/bin/time -v ./ep2 2500 30 &> saida_0_2500_$i
 done
 
 for i in $(seq 1 30)
 do
-  /usr/bin/time -v ./ep2 5000 30 &> saidas/saida_30_5000_$i
+  /usr/bin/time -v ./ep2 25000 30 &> saida_0_25000_$i
 done
 
 for i in $(seq 1 30)
 do
-  /usr/bin/time -v ./ep2 250 60 &> saidas/saida_60_250_$i
+  /usr/bin/time -v ./ep2 250 60 &> saida_0_250_$i
 done
 
 for i in $(seq 1 30)
 do
-  /usr/bin/time -v ./ep2 1000 60 &> saidas/saida_60_1000_$i
+  /usr/bin/time -v ./ep2 2500 60 &> saida_0_2500_$i
 done
 
 for i in $(seq 1 30)
 do
-  /usr/bin/time -v ./ep2 5000 60 &> saidas/saida_60_5000_$i
+  /usr/bin/time -v ./ep2 25000 60 &> saida_0_25000_$i
 done
 

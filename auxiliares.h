@@ -17,7 +17,3 @@
 FILE *abre_arquivo(char *nome_arquivo);
 FILE *cria_arquivo(char *nome);
 void *malloc_safe(size_t n);
-
-struct timeval tempo_inicial;
-void inicializa_relogio();
-float tempo_decorrido();
