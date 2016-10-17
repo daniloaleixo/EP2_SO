@@ -12,7 +12,9 @@ NOME_ARQS_RESULTADOS = ['p_peq_c_peq', 'p_peq_c_med', 'p_peq_c_gra',
 
 tempos_CPU = [[],[],[],[],[],[],[],[],[]]
 page_faults = [[],[],[],[],[],[],[],[],[]]
+voluntary_context_switches = [[],[],[],[],[],[],[],[],[]]
 context_switches = [[],[],[],[],[],[],[],[],[]]
+
 
 # existem 9 combinacoes para pistas e ciclistas elas sao 
  # 0 - pista peq. e ciclista peq.
@@ -71,6 +73,7 @@ for i in range(0, len(arquivos_saida)):
 
 	tempos_CPU[indice].append(content[4].split(' ')[-1])
 	page_faults[indice].append(content[12].split(' ')[-1])
+	voluntary_context_switches[indice].append(content[13].split(' ')[-1])
 	context_switches[indice].append(content[14].split(' ')[-1])
 	#print tempo
 
@@ -85,6 +88,11 @@ for i in range(0, len(NOME_ARQS_RESULTADOS)):
 	file_tempos.write("\nPage Faults: \n")
 	for j in range(0, len(page_faults[i])):
 		file_tempos.write(page_faults[i][j])
+	
+	file_tempos.write("\n Voluntary Context Switches: \n")
+	for j in range(0, len(voluntary_context_switches[i])):
+		file_tempos.write(voluntary_context_switches[i][j])
+
 
 	file_tempos.write("\n Involuntary Context Switches: \n")
 	for j in range(0, len(context_switches[i])):
