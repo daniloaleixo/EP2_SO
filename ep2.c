@@ -46,6 +46,7 @@ void imprime_chegada_dos_ciclistas();
 int num_chegadas_equipe(char equipe);
 float tempo_decorrido();
 void reportar_ciclista_quebrado(int id_ciclista, int posicao_atual);
+int sorteia_quebrado();
 
 /* variaveis globais */
 Posicao *pista;
