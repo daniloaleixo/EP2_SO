@@ -1,5 +1,5 @@
 /* ********************************
-    EP1 - Sistemas Operacionais
+    EP2 - Sistemas Operacionais
     Prof. Daniel Batista
 
     Danilo Aleixo Gomes de Souza

@@ -1,5 +1,5 @@
 /* ********************************
-    EP1 - Sistemas Operacionais
+    EP2 - Sistemas Operacionais
     Prof. Daniel Batista
 
     Danilo Aleixo Gomes de Souza
@@ -18,3 +18,4 @@ consideração, pois foi implementada apenas a versão para funcionar com o
 parâmetro 'u'.
 Para chamar o programa no modo debug, basta incluir um quarto argumento
 (qualquer)
+O programa gera um arquivo de saida chamado "saida.txt"
