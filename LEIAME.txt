@@ -1,0 +1,20 @@
+/* ********************************
+    EP1 - Sistemas Operacionais
+    Prof. Daniel Batista
+
+    Danilo Aleixo Gomes de Souza
+    n USP: 7972370
+  
+    Carlos Augusto Motta de Lima
+    n USP: 7991228
+
+********************************** */
+
+Primeiramente basta utilizar o comando "make" para compilar os arquivos
+executáveis.
+A chamada dos programas deve ser feita conforme especificada no enunciado.
+O terceiro parâmetro, que poderia ser 'v' ou 'u', não será levado em
+consideração, pois foi implementada apenas a versão para funcionar com o
+parâmetro 'u'.
+Para chamar o programa no modo debug, basta incluir um quarto argumento
+(qualquer)
