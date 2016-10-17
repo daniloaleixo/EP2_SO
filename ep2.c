@@ -136,7 +136,7 @@ _--------------------------------------------------------_
     terceiro_maior_time_A = terceiro_maior_do_time('A');
     terceiro_maior_time_B = terceiro_maior_do_time('B');
 
-    if(!vencedor)
+    if(vencedor == FALSE)
       vencedor = quem_venceu(terceiro_maior_time_A, terceiro_maior_time_B);
     
     num_interacoes++;
@@ -220,63 +220,6 @@ void *thread_function_ciclista(void *arg) {
   return NULL;
 }
 
-char quem_venceu(int terceiro_maior_time_A, int terceiro_maior_time_B) {
-  if(terceiro_maior_time_A == d * NUMERO_VOLTAS &&
-     terceiro_maior_time_B == d * NUMERO_VOLTAS) return 'E';
-  if(terceiro_maior_time_A == d * NUMERO_VOLTAS) return 'A';
-  if(terceiro_maior_time_B == d * NUMERO_VOLTAS) return 'B';
-
-  return 0;
-}
-
-int terceiro_maior_do_time(char equipe) {
-  int i, atual, offset, num_voltas,
-      maior = -1, segundo_maior = -1, terceiro_maior = -1,
-      id_maior = -1, id_segundo = -1, id_terceiro = -1;
-
-  if(equipe == 'A') offset = 0;
-  else offset = n;
-
-  for(i = 0; i < n; i++) {
-    atual = quanto_cada_ciclista_andou[i + offset];
-
-    if(atual > maior) {
-      terceiro_maior = segundo_maior;
-      id_terceiro = id_segundo;
-
-      segundo_maior = maior;
-      id_segundo = id_maior;
-
-      maior = atual;
-      id_maior = i;
-    } else if(atual > segundo_maior) {
-      terceiro_maior = segundo_maior;
-      id_terceiro = id_segundo;
-
-      segundo_maior = atual;
-      id_segundo = i;
-    } else if(atual > terceiro_maior) {
-      terceiro_maior = atual;
-      id_terceiro = i;
-    }
-  }
-
-  if(terceiro_maior % d == 0 && terceiro_maior != 0) {
-    if(equipe == 'A')
-      num_voltas = num_voltas_A++;
-    else
-      num_voltas = num_voltas_B++;
-
-    fprintf(arquivo_saida,
-            "%7.2fs | Volta n° %2d da equipe %c: 1° %c%d | 2° %c%d | 3° %c%d\n",
-            tempo_decorrido(), num_voltas, equipe, equipe, id_maior, equipe,
-            id_segundo, equipe, id_terceiro);
-
-  }
-
-  return terceiro_maior;
-}
-
 void inicializa_variaveis_globais() {
   int i, j;
   
@@ -317,6 +260,64 @@ void inicializa_variaveis_globais() {
   pthread_barrier_init(&barreira_todos_ciclistas_correram, NULL, num_ciclistas + 1);
   pthread_barrier_init(&barreira_coordenador, NULL, num_ciclistas + 1);
   pthread_barrier_init(&barreira_apagar_posicao, NULL, num_ciclistas);
+}
+
+char quem_venceu(int terceiro_maior_time_A, int terceiro_maior_time_B) {
+  if(terceiro_maior_time_A == d * NUMERO_VOLTAS &&
+     terceiro_maior_time_B == d * NUMERO_VOLTAS) return 'E';
+  if(terceiro_maior_time_A == d * NUMERO_VOLTAS) return 'A';
+  if(terceiro_maior_time_B == d * NUMERO_VOLTAS) return 'B';
+
+  return FALSE;
+}
+
+int terceiro_maior_do_time(char equipe) {
+  int i, atual, offset, num_voltas,
+      maior = -1, segundo_maior = -1, terceiro_maior = -1,
+      id_maior = -1, id_segundo = -1, id_terceiro = -1;
+
+  if(equipe == 'A') offset = 0;
+  else offset = n;
+
+  for(i = 0; i < n; i++) {
+    atual = quanto_cada_ciclista_andou[i + offset];
+
+    if(atual > maior) {
+      terceiro_maior = segundo_maior;
+      id_terceiro = id_segundo;
+
+      segundo_maior = maior;
+      id_segundo = id_maior;
+
+      maior = atual;
+      id_maior = i;
+    } else if(atual > segundo_maior) {
+      terceiro_maior = segundo_maior;
+      id_terceiro = id_segundo;
+
+      segundo_maior = atual;
+      id_segundo = i;
+    } else if(atual > terceiro_maior) {
+      terceiro_maior = atual;
+      id_terceiro = i;
+    }
+  }
+
+  if(terceiro_maior % d == 0 && terceiro_maior != 0) {
+    if(equipe == 'A' && terceiro_maior / d > num_voltas_A)
+      num_voltas = num_voltas_A++;
+    else if(equipe == 'B' && terceiro_maior / d > num_voltas_B)
+      num_voltas = num_voltas_B++;
+    else return terceiro_maior;
+
+    fprintf(arquivo_saida,
+            "%7.2fs | Volta n° %2d da equipe %c: 1° %c%d | 2° %c%d | 3° %c%d\n",
+            tempo_decorrido(), num_voltas, equipe, equipe, id_maior, equipe,
+            id_segundo, equipe, id_terceiro);
+
+  }
+
+  return terceiro_maior;
 }
 
 void imprime_pista() {
