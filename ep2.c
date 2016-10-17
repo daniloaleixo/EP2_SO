@@ -402,7 +402,6 @@ int sorteia_quebrado() {
 
 
   float sera_que_quebrou = (1.0 * rand() / RAND_MAX);
-  printf("Sera%f\n", sera_que_quebrou);
   if(sera_que_quebrou > 0.1) return -1;
 
   pilha_ciclistas_na_pista = malloc_safe(num_ciclistas * sizeof(int));
