@@ -1,3 +1,1 @@
-- ciclistas podem quebrar
 - velocidade variavel
-- modo debug
